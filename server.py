@@ -1,28 +1,71 @@
-from http.server import HTTPServer, SimpleHTTPRequestHandler
-from urllib import parse 
-from urllib.parse import urlparse, parse_qs
+<!DOCTYPE html>
+<html lang="en">
 
-import json
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python como backend</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css">
+</head>
 
-port = 3000
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-6">
+                <div class="container text-center">
+                    <div class="row">
+                        <div class="col">
+                            <input placeholder="Codigo" name="txtCodigoCliente" id="txtCodigoCliente"
+                                class="form-control" type="text">
+                        </div>
+                    </div>
 
-class miServidor(SimpleHTTPRequestHandler):
-    def do_GET(self):
-        urlParse = urlparse(self.path)
-        qs = parse_qs(urlParse.query)
-       
-        if urlParse.path == "/saludo":
-            saludo = qs["nombre"][0] + " bienvenido a Python"
-            
-            self.send_response(200)
-            self.send_header("Content-type","text/html")
-            self.end_headers()
-            self.wfile.write(saludo.encode("utf-8"))
+                    <div class="row">
+                        <div class="col">
+                            <input placeholder="Nombre" name="txtNombreCliente" id="txtNombreCliente"
+                                class="form-control" type="text">
+                        </div>
+                    </div>
 
-        if self.path == "/":
-            self.path = "/index.html"
-            return SimpleHTTPRequestHandler.do_GET(self)
+                    <div class="row">
+                        <div class="col">
+                            <input placeholder="Direccion" name="txtDireccionCliente" id="txtDireccionCliente"
+                                class="form-control" type="text">
+                        </div>
+                    </div>
 
-print(f"Servidor corriendo en el puerto {port}")
-server = HTTPServer(("localhost",port),miServidor)
-server.serve_forever()
+                    <div class="row">
+
+                        <div class="row">
+                        <div class="col">
+                            <input placeholder="Telefono" name="txtTelefonoCliente" id="txtTelefonoCliente" class="form-control" type="text">
+                            </input>
+                        </div>
+                    </div>
+                     <div class="row">
+                        <div class="col">
+                            <input placeholder="Email" name="txtEmailCliente" id="txtEmailCliente" class="form-control" type="text">
+                            </input>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <select class="form-control" name="cboTipoPersona">
+                                    <option value="particular">Particular</option>
+                                        <option value="empresa">Empresa</option>
+
+
+                            </select>
+                     
+                  
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6">
+      </div>
+        </div>
+          </div>
+
+        </body>
+</html>
