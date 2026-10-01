@@ -1,0 +1,22 @@
+SISTEMA DE IMPUESTOS A LAS ACTIVIDADES ECONOMICAS
+=================================================
+
+1) BASE DE DATOS (una sola vez)
+   Abre MySQL (Workbench / phpMyAdmin / XAMPP), pega y ejecuta todo
+   db_sistema_impuestos.sql.
+   OJO: el script borra y vuelve a crear productos, tarifas, periodos_impuesto
+   y bitacora_periodos. Si lo ejecutas de nuevo, pierdes los periodos guardados.
+
+2) USUARIO Y CONTRASENA DE MYSQL
+   Si tu MySQL tiene contrasena, escribela en conexion.py (self.password).
+
+3) EJECUTAR
+   Doble clic en iniciar.bat
+   (o en la terminal: pip install mysql-connector-python  y luego  python server.py)
+
+4) USAR
+   Abre http://localhost:3000
+   - Crea un cliente de tipo "Empresa".
+   - Elige empresa, producto, fechas y balance. Ejemplo: balance 545 da $4.50.
+   - Los balances entre 6,000.01 y 8,000.00 se rechazan a proposito
+     (el requerimiento no define tarifa para ese rango).
