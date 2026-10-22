@@ -1,0 +1,18 @@
+PARCIAL II - PROGRAMACION COMPUTACIONAL III - USSS020925
+Backend en Python nativo (http.server), sin Flask ni Django.
+
+PASOS EN VISUAL STUDIO CODE
+1. Inicia MySQL (XAMPP -> Start en MySQL).
+2. Archivo > Abrir carpeta > parcial2_usss020925
+3. Terminal > Nueva terminal y ejecuta:
+      pip install -r requirements.txt
+4. Ejecuta:  python main.py   (o presiona F5 con main.py abierto)
+5. Se abre el navegador en http://localhost:8000 con el LOGIN.
+   Usuario: admin   Clave: 123
+6. Para detener el servidor: Ctrl + C en la terminal.
+
+NOTAS
+- El programa crea solo la base db_academica y la tabla usuarios_usss020925
+  si no existen (tambien esta el script base_datos.sql).
+- Si tu MySQL tiene clave de root, cambiala en CONFIG dentro de main.py.
+- Deja la terminal abierta mientras uses el sistema.

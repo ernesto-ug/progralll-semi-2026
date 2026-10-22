@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Sistema de usuarios</title>
+  <style>
+    body{font-family:Arial;margin:0;background:#eef1f5}
+    #vistaLogin{display:flex;justify-content:center;align-items:center;height:100vh}
+    .caja{background:#fff;padding:30px;border-radius:8px;box-shadow:0 2px 8px #0003;width:300px}
+    .caja input,.caja button{width:100%;padding:8px;margin:6px 0;box-sizing:border-box}
+    .caja button{background:#1976d2;color:#fff;border:0;cursor:pointer}
+    #msg{color:red;font-size:14px}
+    #vistaUsuarios{display:none;padding:30px;background:#fff;min-height:100vh;box-sizing:border-box}
+    #vistaUsuarios input{padding:6px;margin:4px;width:220px}
+    #vistaUsuarios button{padding:6px 12px;margin:4px;cursor:pointer}
+    table{border-collapse:collapse;margin-top:15px;width:100%}
+    th,td{border:1px solid #999;padding:6px}
+    th{background:#1976d2;color:#fff}
+    a{cursor:pointer;color:#1976d2;font-size:14px;text-decoration:underline}
+  </style>
+</head>
+<body>
+
+<!-- ========== LOGIN (lo primero que se muestra) ========== -->
+<div id="vistaLogin">
+  <div class="caja">
+    <h2>Iniciar sesión</h2>
+    <input id="lUsuario" placeholder="Usuario">
+    <input id="lClave" type="password" placeholder="Clave">
+    <button onclick="login()">Ingresar</button>
+    <div id="msg"></div>
+  </div>
+</div>
+
+<!-- ========== FORMULARIO DE USUARIOS ========== -->
+<div id="vistaUsuarios">
+  <h2>Registro de usuarios <a onclick="cerrarSesion()">Cerrar sesión</a></h2>
+
+  <input type="hidden" id="idUsuario">
+  <input id="usuario"   placeholder="Usuario" maxlength="35">
+  <input id="clave"     placeholder="Clave" type="password" maxlength="35">
+  <input id="nombre"    placeholder="Nombre" maxlength="85">
+  <input id="direccion" placeholder="Dirección" maxlength="100">
+  <input id="telefono"  placeholder="Teléfono" maxlength="9">
+  <br>
+  <button onclick="guardar()">Guardar</button>
+  <button onclick="limpiar()">Nuevo</button>
+
+  <hr>
+  <input id="buscar" placeholder="Buscar por usuario, nombre o teléfono" onkeyup="buscar()">
+
+  <table>
+    <thead>
+      <tr><th>ID</th><th>Usuario</th><th>Nombre</th><th>Dirección</th><th>Teléfono</th><th>Acciones</th></tr>
+    </thead>
+    <tbody id="tabla"></tbody>
+  </table>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+let lista = [];
+let token = '';
+
+// Envía los datos del formulario a Python (método crud_usuarios_usss020925)
+async function crud(datos){
+  try {
+    const r = await fetch('/crud', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'X-Token': token},
+      body: JSON.stringify(datos)
+    });
+    return await r.json();
+  } catch (e) {
+    alert('No hay conexión con el servidor Python. Revisa la terminal de VS Code.');
+    return {ok:false, msg:'Sin conexión con Python'};
+  }
+}
+
+/* ---------------- LOGIN ---------------- */
+async function login(){
+  try {
+    const r = await fetch('/login', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({usuario: $('lUsuario').value, clave: $('lClave').value})
+    });
+    const d = await r.json();
+    if(d.acceso){
+      token = d.token;
+      $('vistaLogin').style.display = 'none';
+      $('vistaUsuarios').style.display = 'block';
+      buscar();
+    } else {
+      $('msg').innerText = d.msg;
+    }
+  } catch (e) {
+    $('msg').innerText = 'No hay conexión con el servidor Python. Revisa la terminal.';
+  }
+}
+document.addEventListener('keydown', e => {
+  if(e.key === 'Enter' && $('vistaLogin').style.display !== 'none') login();
+});
+
+function cerrarSesion(){
+  token = '';
+  $('vistaUsuarios').style.display = 'none';
+  $('vistaLogin').style.display = 'flex';
+  $('lUsuario').value = ''; $('lClave').value = ''; $('msg').innerText = '';
+  limpiar();
+}
+
+/* ---------------- CRUD ---------------- */
+async function guardar(){
+  const datos = {
+    accion: $('idUsuario').value ? 'modificar' : 'guardar',
+    idUsuario: $('idUsuario').value,
+    usuario: $('usuario').value,
+    clave: $('clave').value,
+    nombre: $('nombre').value,
+    direccion: $('direccion').value,
+    telefono: $('telefono').value
+  };
+  if(!datos.usuario || !datos.clave){ alert('Usuario y clave son obligatorios'); return; }
+  const d = await crud(datos);
+  alert(d.msg);
+  if(d.ok){ limpiar(); buscar(); }
+}
+
+async function buscar(){
+  const d = await crud({accion:'buscar', valor:$('buscar').value});
+  if(!d.ok){ alert(d.msg); return; }
+  lista = d.usuarios || [];
+  $('tabla').innerHTML = lista.map((u,i) => `
+    <tr>
+      <td>${u.idUsuario}</td><td>${u.usuario}</td><td>${u.nombre}</td>
+      <td>${u.direccion}</td><td>${u.telefono}</td>
+      <td>
+        <button onclick="editar(${i})">Editar</button>
+        <button onclick="eliminar(${u.idUsuario})">Eliminar</button>
+      </td>
+    </tr>`).join('');
+}
+
+function editar(i){
+  const u = lista[i];
+  $('idUsuario').value = u.idUsuario;
+  $('usuario').value   = u.usuario;
+  $('clave').value     = u.clave;
+  $('nombre').value    = u.nombre;
+  $('direccion').value = u.direccion;
+  $('telefono').value  = u.telefono;
+}
+
+async function eliminar(id){
+  if(!confirm('¿Eliminar este usuario?')) return;
+  const d = await crud({accion:'eliminar', idUsuario:id});
+  alert(d.msg);
+  buscar();
+}
+
+function limpiar(){
+  ['idUsuario','usuario','clave','nombre','direccion','telefono'].forEach(c => $(c).value = '');
+}
+</script>
+</body>
+</html>
